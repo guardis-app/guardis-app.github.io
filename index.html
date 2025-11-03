@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardis - Система кворумной дешифровки данных</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(88, 101, 242, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -200px;
+            left: -200px;
+            animation: pulse 5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            letter-spacing: -2px;
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: #a0aec0;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            color: #cbd5e0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 18px 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .feature-description {
+            color: #a0aec0;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        /* How it Works */
+        .how-it-works {
+            padding: 100px 0;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .step:nth-child(1) { animation-delay: 0.2s; }
+        .step:nth-child(2) { animation-delay: 0.4s; }
+        .step:nth-child(3) { animation-delay: 0.6s; }
+        .step:nth-child(4) { animation-delay: 0.8s; }
+        .step:nth-child(5) { animation-delay: 1s; }
+
+        .step-number {
+            min-width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .step-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #e2e8f0;
+        }
+
+        .step-content p {
+            color: #a0aec0;
+            line-height: 1.6;
+        }
+
+        /* Benefits Section */
+        .benefits {
+            padding: 100px 0;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .benefit-item {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-item:hover {
+            transform: translateX(10px);
+            border-left-width: 8px;
+        }
+
+        .benefit-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .benefit-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .benefit-text {
+            color: #a0aec0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            color: #a0aec0;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        footer p {
+            color: #718096;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 1.2rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .step {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="logo">GUARDIS</h1>
+                <p class="tagline">Система кворумной дешифровки данных</p>
+                <p class="hero-description">
+                    Защитите конфиденциальную информацию вашей компании от утечек и несанкционированного доступа. 
+                    Guardis использует проверенные криптографические алгоритмы для распределенного управления ключами шифрования.
+                </p>
+                <a href="#contact" class="cta-button">Начать использовать</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Ключевые возможности</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🔐</span>
+                    <h3 class="feature-title">Кворумная система</h3>
+                    <p class="feature-description">
+                        Ключ шифрования распределен между доверенными лицами. Дешифровка возможна только при достижении кворума (например, 3 из 5 человек).
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🖥️</span>
+                    <h3 class="feature-title">Интеграция с Linux</h3>
+                    <p class="feature-description">
+                        Встроенная поддержка LUKS для бесшовной работы с зашифрованными дисками на уровне операционной системы.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📱</span>
+                    <h3 class="feature-title">Мобильное приложение</h3>
+                    <p class="feature-description">
+                        Доверенные лица получают push-уведомления и могут одобрить или отклонить запрос на дешифровку прямо со смартфона.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">✅</span>
+                    <h3 class="feature-title">Проверенная безопасность</h3>
+                    <p class="feature-description">
+                        Используются стандартные криптографические алгоритмы, прошедшие профессиональный аудит безопасности.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">⚙️</span>
+                    <h3 class="feature-title">Гибкая настройка</h3>
+                    <p class="feature-description">
+                        Настраивайте количество доверенных лиц и порог кворума в соответствии с политиками вашей компании.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🚀</span>
+                    <h3 class="feature-title">Простота использования</h3>
+                    <p class="feature-description">
+                        Просто настроить, легко использовать, трудно взломать. Интуитивный интерфейс для администраторов и пользователей.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">Как это работает?</h2>
+            
+            <!-- Diagram -->
+            <div class="diagram-container">
+                <svg viewBox="0 0 1000 400" class="diagram">
+                    <!-- Connection Lines -->
+                    <line x1="200" y1="200" x2="380" y2="200" class="connection-line" stroke-dasharray="5,5">
+                        <animate attributeName="stroke-dashoffset" from="10" to="0" dur="1s" repeatCount="indefinite"/>
+                    </line>
+                    <line x1="620" y1="200" x2="750" y2="120" class="connection-line" stroke-dasharray="5,5">
+                        <animate attributeName="stroke-dashoffset" from="10" to="0" dur="1s" repeatCount="indefinite"/>
+                    </line>
+                    <line x1="620" y1="200" x2="750" y2="200" class="connection-line" stroke-dasharray="5,5">
+                        <animate attributeName="stroke-dashoffset" from="10" to="0" dur="1s" repeatCount="indefinite"/>
+                    </line>
+                    <line x1="620" y1="200" x2="750" y2="280" class="connection-line" stroke-dasharray="5,5">
+                        <animate attributeName="stroke-dashoffset" from="10" to="0" dur="1s" repeatCount="indefinite"/>
+                    </line>
+                    
+                    <!-- Linux Server -->
+                    <g class="server-group">
+                        <rect x="50" y="150" width="150" height="100" rx="10" class="server-box"/>
+                        <text x="125" y="185" class="diagram-icon">🖥️</text>
+                        <text x="125" y="215" class="diagram-label">Linux Server</text>
+                        <text x="125" y="235" class="diagram-sublabel">LUKS</text>
+                    </g>
+                    
+                    <!-- Gateway -->
+                    <g class="gateway-group">
+                        <circle cx="500" cy="200" r="80" class="gateway-circle"/>
+                        <circle cx="500" cy="200" r="65" class="gateway-inner"/>
+                        <text x="500" y="195" class="diagram-icon gateway-icon">🔐</text>
+                        <text x="500" y="225" class="diagram-label">Guardis</text>
+                        <text x="500" y="245" class="diagram-sublabel">Gateway</text>
+                    </g>
+                    
+                    <!-- Mobile Apps - Top -->
+                    <g class="mobile-group">
+                        <rect x="750" y="80" width="60" height="80" rx="8" class="mobile-box"/>
+                        <circle cx="780" cy="95" r="3" class="mobile-camera"/>
+                        <rect x="758" y="102" width="44" height="50" rx="2" class="mobile-screen"/>
+                        <text x="780" y="135" class="mobile-checkmark">✓</text>
+                        <text x="780" y="170" class="mobile-label">User 1</text>
+                    </g>
+                    
+                    <!-- Mobile Apps - Middle -->
+                    <g class="mobile-group">
+                        <rect x="750" y="160" width="60" height="80" rx="8" class="mobile-box"/>
+                        <circle cx="780" cy="175" r="3" class="mobile-camera"/>
+                        <rect x="758" y="182" width="44" height="50" rx="2" class="mobile-screen"/>
+                        <text x="780" y="215" class="mobile-checkmark">✓</text>
+                        <text x="780" y="250" class="mobile-label">User 2</text>
+                    </g>
+                    
+                    <!-- Mobile Apps - Bottom -->
+                    <g class="mobile-group">
+                        <rect x="750" y="240" width="60" height="80" rx="8" class="mobile-box"/>
+                        <circle cx="780" cy="255" r="3" class="mobile-camera"/>
+                        <rect x="758" y="262" width="44" height="50" rx="2" class="mobile-screen"/>
+                        <text x="780" y="295" class="mobile-checkmark">✓</text>
+                        <text x="780" y="330" class="mobile-label">User 3</text>
+                    </g>
+                    
+                    <!-- Lock Icon on Server -->
+                    <text x="125" y="175" class="lock-icon">🔒</text>
+                    
+                    <!-- Quorum Label -->
+                    <text x="850" y="200" class="quorum-label">Кворум:</text>
+                    <text x="850" y="225" class="quorum-value">3 из 5</text>
+                </svg>
+            </div>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Шифрование данных</h3>
+                        <p>Ключ шифрования разделяется между доверенными лицами. Количество лиц и порог кворума определяется администратором. Отдельные части ключа бесполезны без кворума.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Запрос на дешифровку</h3>
+                        <p>При попытке монтирования зашифрованного тома система автоматически отправляет запрос доверенным лицам через мобильное приложение.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Одобрение кворума</h3>
+                        <p>Минимум M из N назначенных доверенных лиц должны подтвердить расшифрование. Каждое лицо использует мобильное приложение для авторизации запроса.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Сборка ключа</h3>
+                        <p>После достижения кворума система собирает фрагменты ключа от одобривших лиц. Процесс полностью автоматизирован и безопасен.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Доступ к данным</h3>
+                        <p>Данные расшифровываются и становятся доступными. Весь процесс занимает секунды и прозрачен для конечного пользователя.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits">
+        <div class="container">
+            <h2 class="section-title">Преимущества для бизнеса</h2>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon">🛡️</div>
+                    <h4 class="benefit-title">Защита от утечек</h4>
+                    <p class="benefit-text">Исключается возможность единоличной компрометации ключа шифрования</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">⚙️</div>
+                    <h4 class="benefit-title">Гибкое управление</h4>
+                    <p class="benefit-text">Настройка состава доверенных лиц согласно корпоративной политике</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">📉</div>
+                    <h4 class="benefit-title">Минимизация рисков</h4>
+                    <p class="benefit-text">Компрометация одного лица не влияет на безопасность системы</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">✅</div>
+                    <h4 class="benefit-title">Прозрачность</h4>
+                    <p class="benefit-text">Руководство контролирует процесс дешифровки и доступ к данным</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">🚫</div>
+                    <h4 class="benefit-title">Защита от физического доступа</h4>
+                    <p class="benefit-text">Физический доступ к серверу не равен доступу к данным</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">🔄</div>
+                    <h4 class="benefit-title">Непрерывность бизнеса</h4>
+                    <p class="benefit-text">Недоступность части ключевых лиц не приводит к остановке работы</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="contact">
+        <div class="container">
+            <h2>Готовы защитить ваши данные?</h2>
+            <p>Свяжитесь с нами для демонстрации системы и обсуждения внедрения Guardis в вашей компании</p>
+            <a href="mailto:info@guardis.app" class="cta-button">Связаться с нами</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Guardis. Все права защищены.</p>
+        </div>
+    </footer>
+</body>
+</html>
